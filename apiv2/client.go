@@ -167,7 +167,7 @@ func (c *RESTClient) GetArtifact(ctx context.Context, projectName, repositoryNam
 	return c.artifact.GetArtifact(ctx, projectName, repositoryName, reference)
 }
 
-func (c *RESTClient) ListArtifacts(ctx context.Context, projectName, repositoryName string) ([]*modelv2.Artifact, error) {
+func (c *RESTClient) ListArtifacts(ctx context.Context, projectName, repositoryName string) ([]*modelv2.Artifact, int64, error) {
 	return c.artifact.ListArtifacts(ctx, projectName, repositoryName)
 }
 
@@ -261,7 +261,7 @@ func (c *RESTClient) GetProject(ctx context.Context, nameOrID string) (*modelv2.
 	return c.project.GetProject(ctx, nameOrID)
 }
 
-func (c *RESTClient) ListProjects(ctx context.Context, nameFilter string) ([]*modelv2.Project, error) {
+func (c *RESTClient) ListProjects(ctx context.Context, nameFilter string) ([]*modelv2.Project, int64, error) {
 	return c.project.ListProjects(ctx, nameFilter)
 }
 
@@ -392,7 +392,7 @@ func (c *RESTClient) ListAllRepositories(ctx context.Context) ([]*modelv2.Reposi
 	return c.repository.ListAllRepositories(ctx)
 }
 
-func (c *RESTClient) ListRepositories(ctx context.Context, projectName string) ([]*modelv2.Repository, error) {
+func (c *RESTClient) ListRepositories(ctx context.Context, projectName string) ([]*modelv2.Repository, int64, error) {
 	return c.repository.ListRepositories(ctx, projectName)
 }
 

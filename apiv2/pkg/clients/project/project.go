@@ -39,7 +39,7 @@ type Client interface {
 	NewProject(ctx context.Context, projectRequest *modelv2.ProjectReq) error
 	DeleteProject(ctx context.Context, nameOrID string) error
 	GetProject(ctx context.Context, nameOrID string) (*modelv2.Project, error)
-	ListProjects(ctx context.Context, nameFilter string) ([]*modelv2.Project, error)
+	ListProjects(ctx context.Context, nameFilter string) ([]*modelv2.Project, int64, error)
 	UpdateProject(ctx context.Context, p *modelv2.Project, storageLimit *int64) error
 	ProjectExists(ctx context.Context, nameOrID string) (bool, error)
 }
@@ -124,6 +124,7 @@ func (c *RESTClient) GetProject(ctx context.Context, nameOrID string) (*modelv2.
 func (c *RESTClient) ListProjects(ctx context.Context, nameFilter string) ([]*modelv2.Project, error) {
 	params := &projectapi.ListProjectsParams{
 		Name:     &nameFilter,
+		Page: 	  &c.Options.Page,
 		PageSize: &c.Options.PageSize,
 		Q:        &c.Options.Query,
 		Sort:     &c.Options.Sort,
@@ -134,14 +135,14 @@ func (c *RESTClient) ListProjects(ctx context.Context, nameFilter string) ([]*mo
 
 	resp, err := c.V2Client.Project.ListProjects(params, c.AuthInfo)
 	if err != nil {
-		return nil, handleSwaggerProjectErrors(err)
+		return nil, 0, handleSwaggerProjectErrors(err)
 	}
 
 	if len(resp.Payload) == 0 {
-		return nil, &clienterrors.ErrProjectNotFound{}
+		return nil, 0, &clienterrors.ErrProjectNotFound{}
 	}
 
-	return resp.Payload, nil
+	return resp.Payload, resp.XTotalCount, nil
 }
 
 // UpdateProject updates a project with the specified data.

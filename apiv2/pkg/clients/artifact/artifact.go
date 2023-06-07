@@ -37,7 +37,7 @@ type Client interface {
 	CreateTag(ctx context.Context, projectName, repositoryName, reference string, tag *model.Tag) error
 	DeleteTag(ctx context.Context, projectName, repositoryName, reference, tagName string) error
 	GetArtifact(ctx context.Context, projectName, repositoryName, reference string) (*model.Artifact, error)
-	ListArtifacts(ctx context.Context, projectName, repositoryName string) ([]*model.Artifact, error)
+	ListArtifacts(ctx context.Context, projectName, repositoryName string) ([]*model.Artifact, int64, error)
 	ListTags(ctx context.Context, projectName, repositoryName, reference string) ([]*model.Tag, error)
 	RemoveLabel(ctx context.Context, projectName, repositoryName, reference string, id int64) error
 	// TODO: Introduce this, once https://github.com/goharbor/harbor/issues/13468 is resolved.
@@ -172,7 +172,7 @@ func (c *RESTClient) GetArtifact(ctx context.Context, projectName, repositoryNam
 	return resp.Payload, nil
 }
 
-func (c *RESTClient) ListArtifacts(ctx context.Context, projectName, repositoryName string) ([]*model.Artifact, error) {
+func (c *RESTClient) ListArtifacts(ctx context.Context, projectName, repositoryName string) ([]*model.Artifact, int64, error) {
 	params := artifact.NewListArtifactsParams()
 	params.WithContext(ctx)
 	params.WithTimeout(c.Options.Timeout)
@@ -185,10 +185,10 @@ func (c *RESTClient) ListArtifacts(ctx context.Context, projectName, repositoryN
 
 	resp, err := c.V2Client.Artifact.ListArtifacts(params, c.AuthInfo)
 	if err != nil {
-		return nil, handleSwaggerArtifactErrors(err)
+		return nil, 0, handleSwaggerArtifactErrors(err)
 	}
 
-	return resp.Payload, nil
+	return resp.Payload, resp.XTotalCount, nil
 }
 
 func (c *RESTClient) ListTags(ctx context.Context, projectName, repositoryName, reference string) ([]*model.Tag, error) {
