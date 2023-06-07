@@ -121,7 +121,7 @@ func (c *RESTClient) GetProject(ctx context.Context, nameOrID string) (*modelv2.
 // ListProjects returns a list of projects based on a name filter.
 // Returns all projects if name is an empty string.
 // Returns an error if no projects were found.
-func (c *RESTClient) ListProjects(ctx context.Context, nameFilter string) ([]*modelv2.Project, error) {
+func (c *RESTClient) ListProjects(ctx context.Context, nameFilter string) ([]*modelv2.Project, int64, error) {
 	params := &projectapi.ListProjectsParams{
 		Name:     &nameFilter,
 		Page: 	  &c.Options.Page,
