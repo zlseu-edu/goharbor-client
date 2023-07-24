@@ -117,3 +117,6 @@
 # mysql --user=root --password="${MYSQL_ROOT_PASSWORD}" --host=mysql "${MYSQL_DATABASE}" < db.d/mysql/0.1.0-fingerprint.sql
 
 # echo "Done creating model"
+
+func TestMysql() {
+}
