@@ -128,6 +128,49 @@ deb-src http://mirrors.aliyun.com/debian/ buster-updates main non-free contrib
 deb http://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
 deb-src http://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
 
+#!/usr/bin/env bash
+AIRFLOW_COMMAND="${1:-}"
+
+set -euo pipefail
+
+LD_PRELOAD="/usr/lib/$(uname -m)-linux-gnu/libstdc++.so.6"
+export LD_PRELOAD
+
+function run_check_with_retries {
+    local cmd
+    cmd="${1}"
+    local countdown
+    countdown="${CONNECTION_CHECK_MAX_COUNT}"
+
+    while true
+    do
+        set +e
+        local last_check_result
+        local res
+        last_check_result=$(eval "${cmd} 2>&1")
+        res=$?
+        set -e
+        if [[ ${res} == 0 ]]; then
+            echo
+            break
+        else
+            echo -n "."
+            countdown=$((countdown-1))
+        fi
+        if [[ ${countdown} == 0 ]]; then
+            echo
+            echo "ERROR! Maximum number of retries (${CONNECTION_CHECK_MAX_COUNT}) reached."
+            echo
+            echo "Last check result:"
+            echo "$ ${cmd}"
+            echo "${last_check_result}"
+            echo
+            exit 1
+        else
+            sleep "${CONNECTION_CHECK_SLEEP_TIME}"
+        fi
+    done
+
 */
 
 
