@@ -191,7 +191,6 @@ func (c *RESTClient) DeleteArtifact(ctx context.Context, projectName, repository
 }
 
 func (c *RESTClient) ListArtifacts(ctx context.Context, projectName, repositoryName string) ([]*model.Artifact, int64, error) {
-	var artifacts []*model.Artifact
 	page := c.Options.Page
 
 	params := artifact.NewListArtifactsParams()
@@ -207,7 +206,7 @@ func (c *RESTClient) ListArtifacts(ctx context.Context, projectName, repositoryN
 
 	resp, err := c.V2Client.Artifact.ListArtifacts(params, c.AuthInfo)
 	if err != nil {
-		return nil, handleSwaggerArtifactErrors(err)
+		return nil, 0, handleSwaggerArtifactErrors(err)
 	}
 
 	return resp.Payload, resp.XTotalCount, nil
