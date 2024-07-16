@@ -38,7 +38,7 @@ type Client interface {
 	NewProject(ctx context.Context, projectRequest *model.ProjectReq) error
 	DeleteProject(ctx context.Context, nameOrID string) error
 	GetProject(ctx context.Context, nameOrID string) (*model.Project, error)
-	ListProjects(ctx context.Context, nameFilter string) ([]*model.Project, error)
+	ListProjects(ctx context.Context, nameFilter string) ([]*model.Project, int64, error)
 	UpdateProject(ctx context.Context, p *model.Project, storageLimit *int64) error
 	ProjectExists(ctx context.Context, nameOrID string) (bool, error)
 }
@@ -122,7 +122,6 @@ func (c *RESTClient) GetProject(ctx context.Context, nameOrID string) (*model.Pr
 // Returns all projects if name is an empty string.
 // Returns an error if no projects were found.
 func (c *RESTClient) ListProjects(ctx context.Context, nameFilter string) ([]*model.Project, error) {
-	var projects []*model.Project
 	page := c.Options.Page
 
 	params := &projectapi.ListProjectsParams{
@@ -136,28 +135,12 @@ func (c *RESTClient) ListProjects(ctx context.Context, nameFilter string) ([]*mo
 
 	params.WithTimeout(c.Options.Timeout)
 
-	for {
-		resp, err := c.V2Client.Project.ListProjects(params, c.AuthInfo)
-		if err != nil {
-			return nil, handleSwaggerProjectErrors(err)
-		}
-
-		if len(resp.Payload) == 0 {
-			break
-		}
-
-		totalCount := resp.XTotalCount
-
-		projects = append(projects, resp.Payload...)
-
-		if int64(len(projects)) >= totalCount {
-			break
-		}
-
-		page++
+	resp, err := c.V2Client.Project.ListProjects(params, c.AuthInfo)
+	if err != nil {
+		return nil, 0, handleSwaggerProjectErrors(err)
 	}
 
-	return projects, nil
+	return resp.Payload, resp.XTotalCount, nil
 }
 
 // UpdateProject updates a project with the specified data.

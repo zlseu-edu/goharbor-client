@@ -214,7 +214,6 @@ func (c *RESTClient) ListArtifacts(ctx context.Context, projectName, repositoryN
 }
 
 func (c *RESTClient) ListTags(ctx context.Context, projectName, repositoryName, reference string) ([]*model.Tag, int64, error) {
-	var tags []*model.Tag
 	page := c.Options.Page
 
 	params := artifact.NewListTagsParams()
@@ -230,7 +229,7 @@ func (c *RESTClient) ListTags(ctx context.Context, projectName, repositoryName, 
 
 	resp, err := c.V2Client.Artifact.ListTags(params, c.AuthInfo)
 	if err != nil {
-		return nil, handleSwaggerArtifactErrors(err)
+		return nil, 0, handleSwaggerArtifactErrors(err)
 	}
 
 	return resp.Payload, resp.XTotalCount nil

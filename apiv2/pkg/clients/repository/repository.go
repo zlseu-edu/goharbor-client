@@ -117,7 +117,6 @@ func (c *RESTClient) ListAllRepositories(ctx context.Context) ([]*model.Reposito
 }
 
 func (c *RESTClient) ListRepositories(ctx context.Context, projectName string) ([]*model.Repository, int64, error) {
-	var repositories []*model.Repository
 	page := c.Options.Page
 
 	params := &repository.ListRepositoriesParams{
@@ -132,7 +131,7 @@ func (c *RESTClient) ListRepositories(ctx context.Context, projectName string) (
 	params.WithTimeout(c.Options.Timeout)
 	resp, err := c.V2Client.Repository.ListRepositories(params, c.AuthInfo)
 	if err != nil {
-		return nil, handleSwaggerRepositoryErrors(err)
+		return nil, 0, handleSwaggerRepositoryErrors(err)
 	}
 
 	return resp.Payload, resp.XTotalCount, nil
