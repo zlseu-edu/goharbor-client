@@ -35,7 +35,7 @@ type Client interface {
 	GetRepository(ctx context.Context, projectName, repositoryName string) (*model.Repository, error)
 	UpdateRepository(ctx context.Context, projectName, repositoryName string, update *model.Repository) error
 	ListAllRepositories(ctx context.Context) ([]*model.Repository, error)
-	ListRepositories(ctx context.Context, projectName string) ([]*model.Repository, error)
+	ListRepositories(ctx context.Context, projectName string) ([]*model.Repository, int64, error)
 	DeleteRepository(ctx context.Context, projectName, repositoryName string) error
 }
 
@@ -116,7 +116,7 @@ func (c *RESTClient) ListAllRepositories(ctx context.Context) ([]*model.Reposito
 	return repositories, nil
 }
 
-func (c *RESTClient) ListRepositories(ctx context.Context, projectName string) ([]*model.Repository, error) {
+func (c *RESTClient) ListRepositories(ctx context.Context, projectName string) ([]*model.Repository, int64, error) {
 	var repositories []*model.Repository
 	page := c.Options.Page
 
@@ -130,25 +130,12 @@ func (c *RESTClient) ListRepositories(ctx context.Context, projectName string) (
 	}
 
 	params.WithTimeout(c.Options.Timeout)
-
-	for {
-		resp, err := c.V2Client.Repository.ListRepositories(params, c.AuthInfo)
-		if err != nil {
-			return nil, handleSwaggerRepositoryErrors(err)
-		}
-
-		totalCount := resp.XTotalCount
-
-		repositories = append(repositories, resp.Payload...)
-
-		if int64(len(repositories)) >= totalCount {
-			break
-		}
-
-		page++
+	resp, err := c.V2Client.Repository.ListRepositories(params, c.AuthInfo)
+	if err != nil {
+		return nil, handleSwaggerRepositoryErrors(err)
 	}
 
-	return repositories, nil
+	return resp.Payload, resp.XTotalCount, nil
 }
 
 func (c *RESTClient) DeleteRepository(ctx context.Context, projectName, repositoryName string) error {

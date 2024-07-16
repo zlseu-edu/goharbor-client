@@ -231,11 +231,11 @@ func (c *RESTClient) DeleteArtifact(ctx context.Context, projectName, repository
 	return c.artifact.DeleteArtifact(ctx, projectName, repositoryName, reference)
 }
 
-func (c *RESTClient) ListArtifacts(ctx context.Context, projectName, repositoryName string) ([]*modelv2.Artifact, error) {
+func (c *RESTClient) ListArtifacts(ctx context.Context, projectName, repositoryName string) ([]*modelv2.Artifact, int64, error) {
 	return c.artifact.ListArtifacts(ctx, projectName, repositoryName)
 }
 
-func (c *RESTClient) ListTags(ctx context.Context, projectName, repositoryName, reference string) ([]*modelv2.Tag, error) {
+func (c *RESTClient) ListTags(ctx context.Context, projectName, repositoryName, reference string) ([]*modelv2.Tag, int64, error) {
 	return c.artifact.ListTags(ctx, projectName, repositoryName, reference)
 }
 
@@ -335,7 +335,7 @@ func (c *RESTClient) GetProject(ctx context.Context, nameOrID string) (*modelv2.
 	return c.project.GetProject(ctx, nameOrID)
 }
 
-func (c *RESTClient) ListProjects(ctx context.Context, nameFilter string) ([]*modelv2.Project, error) {
+func (c *RESTClient) ListProjects(ctx context.Context, nameFilter string) ([]*modelv2.Project, int64, error) {
 	return c.project.ListProjects(ctx, nameFilter)
 }
 

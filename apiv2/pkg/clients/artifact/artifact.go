@@ -38,8 +38,8 @@ type Client interface {
 	DeleteTag(ctx context.Context, projectName, repositoryName, reference, tagName string) error
 	GetArtifact(ctx context.Context, projectName, repositoryName, reference string) (*model.Artifact, error)
 	DeleteArtifact(ctx context.Context, projectName, repositoryName, reference string) error
-	ListArtifacts(ctx context.Context, projectName, repositoryName string) ([]*model.Artifact, error)
-	ListTags(ctx context.Context, projectName, repositoryName, reference string) ([]*model.Tag, error)
+	ListArtifacts(ctx context.Context, projectName, repositoryName string) ([]*model.Artifact, int64, error)
+	ListTags(ctx context.Context, projectName, repositoryName, reference string) ([]*model.Tag, int64, error)
 	RemoveLabel(ctx context.Context, projectName, repositoryName, reference string, id int64) error
 	// TODO: Introduce this, once https://github.com/goharbor/harbor/issues/13468 is resolved.
 	// GetAddition(ctx context.Context, projectName, repositoryName, reference string, addition Addition) (string, error)
@@ -190,7 +190,7 @@ func (c *RESTClient) DeleteArtifact(ctx context.Context, projectName, repository
 	return nil
 }
 
-func (c *RESTClient) ListArtifacts(ctx context.Context, projectName, repositoryName string) ([]*model.Artifact, error) {
+func (c *RESTClient) ListArtifacts(ctx context.Context, projectName, repositoryName string) ([]*model.Artifact, int64, error) {
 	var artifacts []*model.Artifact
 	page := c.Options.Page
 
@@ -205,31 +205,15 @@ func (c *RESTClient) ListArtifacts(ctx context.Context, projectName, repositoryN
 	params.WithRepositoryName(repositoryName)
 	params.WithWithLabel(util.BoolPtr(true))
 
-	for {
-		resp, err := c.V2Client.Artifact.ListArtifacts(params, c.AuthInfo)
-		if err != nil {
-			return nil, handleSwaggerArtifactErrors(err)
-		}
-
-		if len(resp.Payload) == 0 {
-			break
-		}
-
-		totalCount := resp.XTotalCount
-
-		artifacts = append(artifacts, resp.Payload...)
-
-		if int64(len(artifacts)) >= totalCount {
-			break
-		}
-
-		page++
+	resp, err := c.V2Client.Artifact.ListArtifacts(params, c.AuthInfo)
+	if err != nil {
+		return nil, handleSwaggerArtifactErrors(err)
 	}
 
-	return artifacts, nil
+	return resp.Payload, resp.XTotalCount, nil
 }
 
-func (c *RESTClient) ListTags(ctx context.Context, projectName, repositoryName, reference string) ([]*model.Tag, error) {
+func (c *RESTClient) ListTags(ctx context.Context, projectName, repositoryName, reference string) ([]*model.Tag, int64, error) {
 	var tags []*model.Tag
 	page := c.Options.Page
 
@@ -244,28 +228,12 @@ func (c *RESTClient) ListTags(ctx context.Context, projectName, repositoryName, 
 	params.WithContext(ctx)
 	params.WithTimeout(c.Options.Timeout)
 
-	for {
-		resp, err := c.V2Client.Artifact.ListTags(params, c.AuthInfo)
-		if err != nil {
-			return nil, handleSwaggerArtifactErrors(err)
-		}
-
-		if len(resp.Payload) == 0 {
-			break
-		}
-
-		totalCount := resp.XTotalCount
-
-		tags = append(tags, resp.Payload...)
-
-		if int64(len(tags)) >= totalCount {
-			break
-		}
-
-		page++
+	resp, err := c.V2Client.Artifact.ListTags(params, c.AuthInfo)
+	if err != nil {
+		return nil, handleSwaggerArtifactErrors(err)
 	}
 
-	return tags, nil
+	return resp.Payload, resp.XTotalCount nil
 }
 
 func (c *RESTClient) RemoveLabel(ctx context.Context, projectName, repositoryName, reference string, id int64) error {
