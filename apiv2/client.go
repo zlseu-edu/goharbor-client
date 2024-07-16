@@ -501,7 +501,7 @@ func (c *RESTClient) ListAllRepositories(ctx context.Context) ([]*modelv2.Reposi
 	return c.repository.ListAllRepositories(ctx)
 }
 
-func (c *RESTClient) ListRepositories(ctx context.Context, projectName string) ([]*modelv2.Repository, error) {
+func (c *RESTClient) ListRepositories(ctx context.Context, projectName string) ([]*modelv2.Repository, int64, error) {
 	return c.repository.ListRepositories(ctx, projectName)
 }
 
