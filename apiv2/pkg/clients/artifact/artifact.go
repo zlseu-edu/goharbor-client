@@ -232,7 +232,7 @@ func (c *RESTClient) ListTags(ctx context.Context, projectName, repositoryName, 
 		return nil, 0, handleSwaggerArtifactErrors(err)
 	}
 
-	return resp.Payload, resp.XTotalCount nil
+	return resp.Payload, resp.XTotalCount, nil
 }
 
 func (c *RESTClient) RemoveLabel(ctx context.Context, projectName, repositoryName, reference string, id int64) error {
