@@ -53,11 +53,12 @@ func (c *RESTClient) NewReplicationPolicy(ctx context.Context, destRegistry, src
 	filters []*model.ReplicationFilter, trigger *model.ReplicationTrigger,
 	destNamespace, description, name string,
 ) error {
+	var count int8 = 1
 	params := &replicationapi.CreateReplicationPolicyParams{
 		Policy: &model.ReplicationPolicy{
 			Description:               description,
 			DestNamespace:             destNamespace,
-			DestNamespaceReplaceCount: nil,
+			DestNamespaceReplaceCount: &count,
 			DestRegistry:              destRegistry,
 			Enabled:                   enablePolicy,
 			Filters:                   filters,
@@ -183,6 +184,9 @@ func (c *RESTClient) UpdateReplicationPolicy(ctx context.Context, r *model.Repli
 		return &ErrReplicationNotProvided{}
 	}
 
+	var count int8 = 1
+	r.DestNamespaceReplaceCount = &count
+	
 	params := &replicationapi.UpdateReplicationPolicyParams{
 		ID:      id,
 		Policy:  r,
